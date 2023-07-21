@@ -1,0 +1,93 @@
+#include <IRremote.h>
+#include <LiquidCrystal.h>
+
+#define IR_RECEIVE_PIN 8
+LiquidCrystal lcd = LiquidCrystal(2, 3, 4, 5, 6, 7);
+
+void setup() {
+  lcd.begin(16, 2);
+  Serial.begin(9600);
+  IrReceiver.begin(IR_RECEIVE_PIN);
+}
+
+void *input(String &w){
+  bool done = false;
+  while (!done){
+    if (IrReceiver.decode()) {
+    	IrReceiver.resume();
+      	lcd.setCursor(6, 0);
+    	int command = IrReceiver.decodedIRData.command;
+    	switch (command) {
+      		case 16: {
+        		w += '1';lcd.print(w);break;
+      		}
+      		case 17: {
+        		w += '2';lcd.print(w);break;
+      		}
+      		case 18: {
+        		w += '3';lcd.print(w);break;
+      		}
+      		case 20: {
+        		w += '4';lcd.print(w);break;
+      		}
+      		case 21: {
+        		w += '5';lcd.print(w);break;
+      		}
+      		case 22: {
+        		w += '6';lcd.print(w);break;
+      		}
+          	case 24: {
+        		w += '7';lcd.print(w);break;
+      		}
+      		case 25: {
+        		w += '8';lcd.print(w);break;
+      		}
+      		case 26: {
+        		w += '9';lcd.print(w);break;
+      		}
+          	case 12: {
+        		w += '0';lcd.print(w);break;
+      		}
+	      	case 13: {
+	        	done = true;break;
+	      	}
+    	}
+  	}
+  }
+}
+
+void show_while(double &a){
+  bool done = false;
+  lcd.home();
+  lcd.print("BMI");
+  lcd.setCursor(11, 1);
+  lcd.print(a);
+  while (!done){
+    if (IrReceiver.decode()) {
+    	IrReceiver.resume();
+    	int command = IrReceiver.decodedIRData.command;
+      	if (command) {
+        	done = true;
+      	}
+  	}
+  }
+}
+
+
+void loop() {
+	String w;
+    String h;
+  	lcd.home();
+  	lcd.print("W(kg):");
+  	input(w);
+  	lcd.clear();
+  	lcd.print("H(cm):");
+  	input(h);
+  	lcd.clear();
+  	int w_interger = w.toInt();
+  	double h_interger = h.toInt();
+  	double a = (w_interger/h_interger/h_interger)*10000;
+  	show_while(a);
+  	Serial.println(a);
+  	lcd.clear();
+}
